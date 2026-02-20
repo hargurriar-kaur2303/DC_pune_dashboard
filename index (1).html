@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>District Collector Pune — AI-Enabled Governance Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<style>
+:root {
+  /* Official Maharashtra / Indian Government palette */
+  --saffron: #FF6B00;
+  --saffron-deep: #E55A00;
+  --saffron-light: #FF8C38;
+  --saffron-glow: rgba(255,107,0,0.12);
+  --saffron-bg: rgba(255,107,0,0.06);
+  --navy: #1B2A4A;
+  --navy-deep: #0F1B33;
+  --navy-mid: #243B65;
+  --chakra-blue: #000080;
+  --ashoka-blue: #0038A8;
+  --white-marble: #FAFAF8;
+  --cream: #F5F0E8;
+  --gold: #C9A84C;
+  --gold-light: #E8D48B;
+  --green-india: #138808;
+  --success: #0D9B5C;
+  --warning: #E8960C;
+  --danger: #D42B2B;
+  --info: #2563EB;
+  --text-dark: #1A1A2E;
+  --text-mid: #4A4A6A;
+  --text-light: #7A7A9A;
+  --border: #E0D8CC;
+  --border-light: #EDE8E0;
+  --card-bg: #FFFFFF;
+  --card-shadow: 0 2px 16px rgba(27,42,74,0.06), 0 1px 4px rgba(27,42,74,0.04);
+  --card-hover: 0 8px 32px rgba(27,42,74,0.10), 0 2px 8px rgba(27,42,74,0.06);
+  --sidebar-w: 280px;
+  --topbar-h: 72px;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  line-height: 1.6;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* ═══ SCROLLBAR ═══ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-light); }
+
+/* ═══ LAYOUT ═══ */
+.app { display: flex; height: 100vh; }
+
+/* ═══ SIDEBAR ═══ */
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 40%, var(--navy-mid) 100%);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+  z-index: 100;
+  position: relative;
+  overflow: hidden;
+}
+.sidebar::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--saffron) 0%, transparent 30%, transparent 70%, var(--gold) 100%);
+  opacity: 0.4;
+}
+
+.sidebar-header {
+  padding: 24px 22px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.sidebar-emblem {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--saffron), var(--saffron-deep));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 4px 16px rgba(255,107,0,0.3);
+  flex-shrink: 0;
+}
+.sidebar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 1.2;
+}
+.sidebar-subtitle {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+  overflow-y: auto;
+}
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  padding: 16px 14px 8px;
+}
+.nav-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(255,255,255,0.55);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  margin-bottom: 2px;
+  position: relative;
+}
+.nav-btn:hover {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.85);
+}
+.nav-btn.active {
+  background: var(--saffron-glow);
+  color: var(--saffron-light);
+  font-weight: 600;
+}
+.nav-btn.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 20px;
+  border-radius: 0 3px 3px 0;
+  background: var(--saffron);
+}
+.nav-icon {
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.nav-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: var(--danger);
+  color: white;
+}
+
+.sidebar-footer {
+  padding: 16px 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.sidebar-footer-text {
+  font-size: 10px;
+  color: rgba(255,255,255,0.25);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ═══ MAIN ═══ */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+/* ═══ TOPBAR ═══ */
+.topbar {
+  height: var(--topbar-h);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
+}
+.topbar-left h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.2;
+}
+.topbar-left p {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.topbar-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--saffron-bg);
+  border: 1px solid rgba(255,107,0,0.15);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--saffron-deep);
+}
+.topbar-badge .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.topbar-alerts {
+  position: relative;
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  background: var(--white-marble);
+  border: 1px solid var(--border-light);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s;
+  user-select: none;
+}
+.topbar-alerts:hover { background: var(--cream); border-color: var(--saffron); }
+.topbar-alerts .count {
+  position: absolute;
+  top: -4px; right: -4px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--card-bg);
+}
+.topbar-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 14px 6px 6px;
+  border-radius: 28px;
+  background: var(--white-marble);
+  border: 1px solid var(--border-light);
+}
+.topbar-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--navy), var(--ashoka-blue));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+}
+.topbar-user-name { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+.topbar-user-role { font-size: 11px; color: var(--text-light); }
+
+/* ═══ CONTENT ═══ */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 32px 40px;
+}
+
+/* ═══ MARQUEE ═══ */
+.ticker {
+  background: linear-gradient(90deg, var(--navy-deep), var(--navy));
+  color: var(--gold-light);
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.2px;
+}
+.ticker-inner {
+  display: inline-block;
+  animation: ticker 40s linear infinite;
+}
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-sep { color: var(--saffron); margin: 0 24px; }
+
+/* ═══ GRID ═══ */
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 28px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 28px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+.grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 28px; }
+.grid-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 28px; }
+
+/* ═══ KPI CARD ═══ */
+.kpi {
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.kpi:hover {
+  box-shadow: var(--card-hover);
+  transform: translateY(-2px);
+  border-color: var(--saffron);
+}
+.kpi-stripe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+}
+.kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.kpi-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-light);
+  letter-spacing: 0.3px;
+}
+.kpi-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.kpi-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.kpi-value .unit {
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Source Sans 3', sans-serif;
+  color: var(--text-light);
+  margin-left: 4px;
+}
+.kpi-trend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.kpi-trend.up { color: var(--success); }
+.kpi-trend.down { color: var(--danger); }
+.kpi-trend.neutral { color: var(--text-light); }
+.kpi-trend .vs {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-light);
+  margin-left: 4px;
+}
+
+/* ═══ SECTION CARD ═══ */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.3s;
+}
+.card:hover { box-shadow: var(--card-hover); }
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-title .ai-tag {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, var(--saffron), var(--saffron-deep));
+  color: white;
+  letter-spacing: 0.5px;
+}
+.card-subtitle {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-top: -12px;
+  margin-bottom: 18px;
+}
+
+/* ═══ CHART CONTAINER ═══ */
+.chart-wrap {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+.chart-wrap canvas { width: 100% !important; }
+
+/* ═══ DSS ALERT ═══ */
+.dss-alert {
+  padding: 18px 20px;
+  border-radius: 12px;
+  border-left: 4px solid;
+  margin-bottom: 14px;
+  transition: all 0.2s;
+}
+.dss-alert:hover { transform: translateX(4px); }
+.dss-alert.critical { background: #FEF2F2; border-color: var(--danger); }
+.dss-alert.high { background: #FFFBEB; border-color: var(--warning); }
+.dss-alert.medium { background: #EFF6FF; border-color: var(--info); }
+.dss-alert.low { background: #F0FDF4; border-color: var(--success); }
+.dss-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.dss-module {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+.dss-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.dss-badge.critical { background: var(--danger); color: white; }
+.dss-badge.high { background: var(--warning); color: white; }
+.dss-badge.medium { background: var(--info); color: white; }
+.dss-badge.low { background: var(--success); color: white; }
+.dss-text {
+  font-size: 14px;
+  color: var(--text-mid);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+.dss-action {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(27,42,74,0.04);
+  border: 1px solid var(--border-light);
+  font-size: 13px;
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+.dss-action strong {
+  color: var(--saffron-deep);
+  font-weight: 700;
+}
+.dss-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.btn-accept {
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--saffron), var(--saffron-deep));
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-accept:hover { box-shadow: 0 4px 12px rgba(255,107,0,0.3); transform: translateY(-1px); }
+.btn-dismiss {
+  padding: 8px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: white;
+  color: var(--text-mid);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* ═══ PROGRESS BAR ═══ */
+.progress-row { margin-bottom: 16px; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+.progress-label .name { font-weight: 600; color: var(--text-dark); }
+.progress-label .val { font-weight: 700; color: var(--navy); }
+.progress-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--cream);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ═══ TABLE ═══ */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.data-table th {
+  text-align: left;
+  padding: 12px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-light);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--border);
+  background: var(--white-marble);
+}
+.data-table td {
+  padding: 14px 14px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-mid);
+  font-size: 14px;
+}
+.data-table tr:hover td { background: var(--saffron-bg); }
+.data-table .name-cell { font-weight: 600; color: var(--text-dark); }
+.status-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.status-tag.on-track { background: #DCFCE7; color: #166534; }
+.status-tag.delayed { background: #FEE2E2; color: #991B1B; }
+.status-tag.in-progress { background: #FEF3C7; color: #92400E; }
+.status-tag.completed { background: #DBEAFE; color: #1E40AF; }
+
+/* ═══ IoT SENSOR ═══ */
+.sensor-card {
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: var(--white-marble);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+  transition: all 0.2s;
+}
+.sensor-card:hover { border-color: var(--saffron); background: var(--saffron-bg); }
+.sensor-icon {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.sensor-info { flex: 1; }
+.sensor-name { font-size: 13px; color: var(--text-light); }
+.sensor-value { font-size: 22px; font-weight: 700; color: var(--navy); }
+.sensor-value .unit { font-size: 13px; font-weight: 500; color: var(--text-light); }
+.sensor-status {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sensor-status.good { background: var(--success); box-shadow: 0 0 8px rgba(13,155,92,0.4); }
+.sensor-status.moderate { background: var(--warning); box-shadow: 0 0 8px rgba(232,150,12,0.4); }
+.sensor-status.high { background: var(--danger); box-shadow: 0 0 8px rgba(212,43,43,0.4); }
+.sensor-status.heavy { background: var(--danger); box-shadow: 0 0 8px rgba(212,43,43,0.4); }
+
+/* ═══ SCENARIO SIM ═══ */
+.sim-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.sim-item {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--white-marble);
+  border: 1px solid var(--border-light);
+}
+.sim-label { font-size: 12px; color: var(--text-light); margin-bottom: 6px; }
+.sim-values { display: flex; align-items: center; gap: 8px; }
+.sim-old { font-size: 16px; color: var(--text-light); }
+.sim-arrow { color: var(--success); font-weight: 700; font-size: 16px; }
+.sim-new { font-size: 18px; font-weight: 700; color: var(--success); }
+
+/* ═══ BENCHMARK ═══ */
+.bench-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.bench-row:last-child { border-bottom: none; }
+.bench-rank {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.bench-rank.top { background: var(--saffron); color: white; }
+.bench-rank.other { background: var(--cream); color: var(--text-mid); }
+.bench-name { flex: 1; font-size: 15px; font-weight: 500; color: var(--text-dark); }
+.bench-bar { width: 120px; }
+.bench-score { font-size: 18px; font-weight: 700; width: 36px; text-align: right; }
+
+/* ═══ ANIMATION ═══ */
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+  opacity: 0;
+}
+
+/* ═══ NOTIFICATION PANEL ═══ */
+.notif-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 400px;
+  max-height: 480px;
+  overflow-y: auto;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 16px 48px rgba(27,42,74,0.18), 0 4px 12px rgba(27,42,74,0.08);
+  z-index: 200;
+  padding: 0;
+}
+.notif-panel.open { display: block; }
+.notif-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background: var(--card-bg);
+  z-index: 1;
+}
+.notif-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.notif-clear {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--saffron);
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+.notif-clear:hover { background: var(--saffron-bg); }
+.notif-item {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.notif-item:hover { background: var(--saffron-bg); }
+.notif-item:last-child { border-bottom: none; }
+.notif-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.notif-dot.critical { background: var(--danger); box-shadow: 0 0 8px rgba(212,43,43,0.4); }
+.notif-dot.high { background: var(--warning); box-shadow: 0 0 8px rgba(232,150,12,0.4); }
+.notif-dot.medium { background: var(--info); box-shadow: 0 0 8px rgba(37,99,235,0.4); }
+.notif-dot.low { background: var(--success); }
+.notif-content { flex: 1; }
+.notif-title { font-size: 14px; font-weight: 600; color: var(--text-dark); line-height: 1.4; }
+.notif-meta { font-size: 12px; color: var(--text-light); margin-top: 3px; display: flex; gap: 10px; }
+.notif-time { font-weight: 500; }
+.notif-module {
+  padding: 1px 8px;
+  border-radius: 4px;
+  background: var(--cream);
+  font-weight: 600;
+  font-size: 11px;
+}
+
+/* ═══ REVENUE LEGEND ═══ */
+.custom-legend {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-mid);
+  font-weight: 500;
+}
+.legend-dot {
+  width: 12px; height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+@keyframes fadeIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in { transform: translateY(12px); }
+.d1 { animation-delay: 0.05s; }
+.d2 { animation-delay: 0.1s; }
+.d3 { animation-delay: 0.15s; }
+.d4 { animation-delay: 0.2s; }
+.d5 { animation-delay: 0.25s; }
+
+/* ═══ MAHARASHTRA ORNAMENT ═══ */
+.maha-stripe {
+  height: 4px;
+  background: linear-gradient(90deg, var(--saffron) 0%, var(--saffron) 33%, white 33%, white 66%, var(--green-india) 66%, var(--green-india) 100%);
+  flex-shrink: 0;
+}
+
+/* ═══ MODULE TITLE ═══ */
+.module-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.module-title .icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* hide sections */
+.module-section { display: none; }
+.module-section.active { display: block; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-emblem">🏛️</div>
+      <div>
+        <div class="sidebar-title">DC Pune District</div>
+        <div class="sidebar-subtitle">AI Governance Dashboard</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Command Centre</div>
+      <button class="nav-btn active" data-module="overview" onclick="switchModule('overview', this)">
+        <span class="nav-icon">📊</span> Strategic Overview
+      </button>
+      <button class="nav-btn" data-module="dss" onclick="switchModule('dss', this)">
+        <span class="nav-icon">🧠</span> AI Decision Support
+        <span class="nav-badge">5</span>
+      </button>
+      <div class="nav-section-label">Modules</div>
+      <button class="nav-btn" data-module="revenue" onclick="switchModule('revenue', this)">
+        <span class="nav-icon">💰</span> Revenue Administration
+      </button>
+      <button class="nav-btn" data-module="laworder" onclick="switchModule('laworder', this)">
+        <span class="nav-icon">🛡️</span> Law & Order
+      </button>
+      <button class="nav-btn" data-module="disaster" onclick="switchModule('disaster', this)">
+        <span class="nav-icon">⛈️</span> Disaster Management
+      </button>
+      <button class="nav-btn" data-module="health" onclick="switchModule('health', this)">
+        <span class="nav-icon">🏥</span> Health Services
+      </button>
+      <button class="nav-btn" data-module="education" onclick="switchModule('education', this)">
+        <span class="nav-icon">🎓</span> Education
+      </button>
+      <button class="nav-btn" data-module="grievance" onclick="switchModule('grievance', this)">
+        <span class="nav-icon">📝</span> Public Grievances
+      </button>
+      <button class="nav-btn" data-module="welfare" onclick="switchModule('welfare', this)">
+        <span class="nav-icon">🤝</span> Social Welfare
+      </button>
+      <button class="nav-btn" data-module="agriculture" onclick="switchModule('agriculture', this)">
+        <span class="nav-icon">🌾</span> Agriculture
+      </button>
+      <button class="nav-btn" data-module="election" onclick="switchModule('election', this)">
+        <span class="nav-icon">🗳️</span> Elections
+      </button>
+      <div class="nav-section-label">Systems</div>
+      <button class="nav-btn" data-module="iot" onclick="switchModule('iot', this)">
+        <span class="nav-icon">📡</span> IoT & Sensors
+      </button>
+      <button class="nav-btn" data-module="ml" onclick="switchModule('ml', this)">
+        <span class="nav-icon">⚙️</span> ML Model Status
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-text">Government of Maharashtra<br>Powered by AI/ML Analytics Engine v1.0</div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <div class="main">
+    <!-- Maharashtra tricolour stripe -->
+    <div class="maha-stripe"></div>
+
+    <!-- Ticker -->
+    <div class="ticker">
+      <div class="ticker-inner">
+        <span>🔴 CRITICAL: Heavy rainfall warning — Maval & Mulshi regions next 48 hours</span>
+        <span class="ticker-sep">◆</span>
+        <span>⚠️ Dengue cases up 52% in Kothrud — AI recommends fogging operations</span>
+        <span class="ticker-sep">◆</span>
+        <span>✅ Revenue collection: ₹1,847 Cr (93.2% of target) — 12.4% YoY growth</span>
+        <span class="ticker-sep">◆</span>
+        <span>🧠 AI detected 1,247 fictitious beneficiaries — Est. savings ₹3.2 Cr/year</span>
+        <span class="ticker-sep">◆</span>
+        <span>📊 Grievance resolution improved 8.2% — NLP chatbot handling 34% queries</span>
+        <span class="ticker-sep">◆</span>
+        <span>🔴 CRITICAL: Heavy rainfall warning — Maval & Mulshi regions next 48 hours</span>
+        <span class="ticker-sep">◆</span>
+        <span>⚠️ Dengue cases up 52% in Kothrud — AI recommends fogging operations</span>
+        <span class="ticker-sep">◆</span>
+        <span>✅ Revenue collection: ₹1,847 Cr (93.2% of target) — 12.4% YoY growth</span>
+        <span class="ticker-sep">◆</span>
+        <span>🧠 AI detected 1,247 fictitious beneficiaries — Est. savings ₹3.2 Cr/year</span>
+        <span class="ticker-sep">◆</span>
+        <span>📊 Grievance resolution improved 8.2% — NLP chatbot handling 34% queries</span>
+        <span class="ticker-sep">◆</span>
+      </div>
+    </div>
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1 id="topbar-title">Strategic Overview</h1>
+        <p id="topbar-sub">District Collector, Pune · <span id="live-date"></span></p>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-badge"><span class="dot"></span> AI Engine Active</div>
+        <div class="topbar-alerts" title="Active Alerts" id="notif-toggle" onclick="toggleNotifications(event)">
+          🔔 <span class="count" id="notif-count">5</span>
+          <div class="notif-panel" id="notif-panel">
+            <div class="notif-header">
+              <h3>🔔 Notifications (5)</h3>
+              <button class="notif-clear" onclick="clearNotifications(event)">Mark all read</button>
+            </div>
+            <div id="notif-list">
+              <div class="notif-item" onclick="handleNotifClick(event,'health')">
+                <div class="notif-dot critical"></div>
+                <div class="notif-content">
+                  <div class="notif-title">🦟 Dengue cases up 52% in Kothrud zone — AI predicts 120+ cases next week</div>
+                  <div class="notif-meta"><span class="notif-time">2 min ago</span><span class="notif-module">Health</span></div>
+                </div>
+              </div>
+              <div class="notif-item" onclick="handleNotifClick(event,'disaster')">
+                <div class="notif-dot critical"></div>
+                <div class="notif-content">
+                  <div class="notif-title">🌊 IMD: Heavy rainfall next 48hrs — Maval & Mulshi flood risk</div>
+                  <div class="notif-meta"><span class="notif-time">18 min ago</span><span class="notif-module">Disaster</span></div>
+                </div>
+              </div>
+              <div class="notif-item" onclick="handleNotifClick(event,'revenue')">
+                <div class="notif-dot high"></div>
+                <div class="notif-content">
+                  <div class="notif-title">💰 Shirur tehsil projected to miss revenue target by 26%</div>
+                  <div class="notif-meta"><span class="notif-time">1 hr ago</span><span class="notif-module">Revenue</span></div>
+                </div>
+              </div>
+              <div class="notif-item" onclick="handleNotifClick(event,'laworder')">
+                <div class="notif-dot medium"></div>
+                <div class="notif-content">
+                  <div class="notif-title">🛡️ Predicted theft spike in Hadapsar East — 68% probability</div>
+                  <div class="notif-meta"><span class="notif-time">2 hrs ago</span><span class="notif-module">Law & Order</span></div>
+                </div>
+              </div>
+              <div class="notif-item" onclick="handleNotifClick(event,'education')">
+                <div class="notif-dot medium"></div>
+                <div class="notif-content">
+                  <div class="notif-title">🎓 Dropout rate spike (8.2%) detected in Junnar block</div>
+                  <div class="notif-meta"><span class="notif-time">3 hrs ago</span><span class="notif-module">Education</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="topbar-user">
+          <div class="topbar-avatar">DC</div>
+          <div>
+            <div class="topbar-user-name">District Collector</div>
+            <div class="topbar-user-role">Pune District, Maharashtra</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content area -->
+    <div class="content" id="content">
+
+      <!-- ═══════════ OVERVIEW ═══════════ -->
+      <div class="module-section active" id="mod-overview">
+        <!-- KPIs -->
+        <div class="grid-4">
+          <div class="kpi fade-in d1">
+            <div class="kpi-stripe" style="background:linear-gradient(90deg,var(--success),#34D399)"></div>
+            <div class="kpi-header">
+              <span class="kpi-label">Revenue Collected (FY)</span>
+              <div class="kpi-icon" style="background:#DCFCE7">💰</div>
+            </div>
+            <div class="kpi-value">₹1,847<span class="unit">Cr</span></div>
+            <div class="kpi-trend up">▲ +12.4%<span class="vs">vs last year</span></div>
+          </div>
+          <div class="kpi fade-in d2">
+            <div class="kpi-stripe" style="background:linear-gradient(90deg,var(--warning),#FCD34D)"></div>
+            <div class="kpi-header">
+              <span class="kpi-label">Active Grievances</span>
+              <div class="kpi-icon" style="background:#FEF3C7">📝</div>
+            </div>
+            <div class="kpi-value">2,847</div>
+            <div class="kpi-trend up">▼ -8.2%<span class="vs">complaints reduced</span></div>
+          </div>
+          <div class="kpi fade-in d3">
+            <div class="kpi-stripe" style="background:linear-gradient(90deg,var(--info),#60A5FA)"></div>
+            <div class="kpi-header">
+              <span class="kpi-label">Crime Index</span>
+              <div class="kpi-icon" style="background:#DBEAFE">🛡️</div>
+            </div>
+            <div class="kpi-value">4.2<span class="unit">/10</span></div>
+            <div class="kpi-trend up">▼ -3.1%<span class="vs">improving</span></div>
+          </div>
+          <div class="kpi fade-in d4">
+            <div class="kpi-stripe" style="background:linear-gradient(90deg,var(--saffron),var(--saffron-light))"></div>
+            <div class="kpi-header">
+              <span class="kpi-label">Scheme Coverage</span>
+              <div class="kpi-icon" style="background:var(--saffron-bg)">🤝</div>
+            </div>
+            <div class="kpi-value">89.4<span class="unit">%</span></div>
+            <div class="kpi-trend up">▲ +2.8%<span class="vs">vs last quarter</span></div>
+          </div>
+        </div>
+
+        <!-- Revenue chart + DSS alerts -->
+        <div class="grid-2-1">
+          <div class="card fade-in d2">
+            <div class="card-title">Revenue Collection Trend (₹ Crore) <span class="ai-tag">AI FORECAST</span></div>
+            <div class="chart-wrap"><canvas id="chart-revenue"></canvas></div>
+          </div>
+          <div class="card fade-in d3">
+            <div class="card-title">🧠 AI Decision Alerts</div>
+            <div class="dss-alert critical">
+              <div class="dss-header"><span class="dss-module">🏥 Health</span><span class="dss-badge critical">Critical</span></div>
+              <div class="dss-text">Dengue cases up 52% in Kothrud zone. AI predicts 120+ cases next week.</div>
+            </div>
+            <div class="dss-alert high">
+              <div class="dss-header"><span class="dss-module">⛈️ Disaster</span><span class="dss-badge high">High</span></div>
+              <div class="dss-text">Heavy rainfall next 48hrs in Maval. Evacuate 12 low-lying villages.</div>
+            </div>
+            <div class="dss-alert medium">
+              <div class="dss-header"><span class="dss-module">💰 Revenue</span><span class="dss-badge medium">Medium</span></div>
+              <div class="dss-text">Shirur tehsil projected to miss target by 26%. Deploy recovery officers.</div>
+            </div>
+            <div class="dss-alert medium">
+              <div class="dss-header"><span class="dss-module">🛡️ Law & Order</span><span class="dss-badge medium">Medium</span></div>
+              <div class="dss-text">Predicted theft spike in Hadapsar East (68% probability this week).</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Department Performance + Grievance Pie + IoT -->
+        <div class="grid-3">
+          <div class="card fade-in d3">
+            <div class="card-title">Department Performance Score</div>
+            <div id="dept-bars"></div>
+          </div>
+          <div class="card fade-in d4">
+            <div class="card-title">Grievance Distribution <span class="ai-tag">NLP</span></div>
+            <div class="chart-wrap" style="height:260px"><canvas id="chart-grievance-pie"></canvas></div>
+          </div>
+          <div class="card fade-in d5">
+            <div class="card-title">IoT Sensor Network <span class="ai-tag">LIVE</span></div>
+            <div id="iot-sensors"></div>
+          </div>
+        </div>
+
+        <!-- Project table + Scheme chart -->
+        <div class="grid-2">
+          <div class="card fade-in d4">
+            <div class="card-title">Project Portfolio Status</div>
+            <table class="data-table" id="project-table"></table>
+          </div>
+          <div class="card fade-in d5">
+            <div class="card-title">Scheme Implementation <span class="ai-tag">AI TRACKED</span></div>
+            <div class="chart-wrap" style="height:280px"><canvas id="chart-schemes"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ DSS MODULE ═══════════ -->
+      <div class="module-section" id="mod-dss">
+        <div class="module-title"><span class="icon" style="background:var(--saffron-bg)">🧠</span> AI Decision Support System</div>
+        <div class="grid-2" style="margin-bottom:24px">
+          <div class="card">
+            <div class="card-title">Active AI Recommendations <span class="ai-tag">PRESCRIPTIVE</span></div>
+            <div id="dss-recommendations"></div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:20px">
+              <div class="card-title">Scenario Simulation <span class="ai-tag">WHAT-IF</span></div>
+              <div style="padding:14px 16px;border-radius:10px;background:var(--saffron-bg);border:1px solid rgba(255,107,0,0.15);margin-bottom:16px">
+                <div style="font-size:15px;font-weight:700;color:var(--saffron-deep);margin-bottom:10px">What-If: Increase Health Budget by 15%</div>
+                <div class="sim-grid">
+                  <div class="sim-item"><div class="sim-label">Bed Occupancy</div><div class="sim-values"><span class="sim-old">78%</span><span class="sim-arrow">→</span><span class="sim-new">68%</span></div></div>
+                  <div class="sim-item"><div class="sim-label">Medicine Stockout</div><div class="sim-values"><span class="sim-old">12 d/yr</span><span class="sim-arrow">→</span><span class="sim-new">4 d/yr</span></div></div>
+                  <div class="sim-item"><div class="sim-label">108 Response Time</div><div class="sim-values"><span class="sim-old">14 min</span><span class="sim-arrow">→</span><span class="sim-new">9 min</span></div></div>
+                  <div class="sim-item"><div class="sim-label">Vaccination Rate</div><div class="sim-values"><span class="sim-old">94.2%</span><span class="sim-arrow">→</span><span class="sim-new">98.1%</span></div></div>
+                </div>
+                <div style="margin-top:12px;font-size:12px;color:var(--text-light);font-style:italic">Confidence: 82-91% | Based on 5-year historical data</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">Inter-District Benchmarking</div>
+              <div id="bench-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Causal Analytics Engine <span class="ai-tag">XAI</span></div>
+            <div class="dss-alert low">
+              <div class="dss-header"><span class="dss-module">📊 Grievance Resolution Improved 18%</span></div>
+              <div class="dss-text"><strong>Root Cause Analysis:</strong> AI chatbot deployment (42% contribution), new staff training (31%), streamlined routing (27%). A/B testing confirms chatbot causally reduced avg resolution time by 1.8 days.</div>
+            </div>
+            <div class="dss-alert medium">
+              <div class="dss-header"><span class="dss-module">📊 Crime Rate Reduction in Kothrud</span></div>
+              <div class="dss-text"><strong>Causal Factors:</strong> Predictive patrolling (55% contribution), CCTV expansion (28%), community policing (17%). Regression discontinuity analysis confirms patrolling caused 12% reduction.</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">ML Model Performance Monitor <span class="ai-tag">MLOps</span></div>
+            <div id="ml-models-dss"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ REVENUE ═══════════ -->
+      <div class="module-section" id="mod-revenue">
+        <div class="module-title"><span class="icon" style="background:#DCFCE7">💰</span> Revenue Administration</div>
+        <div class="grid-4">
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--success)"></div><div class="kpi-header"><span class="kpi-label">Total Revenue (FY)</span><div class="kpi-icon" style="background:#DCFCE7">💰</div></div><div class="kpi-value">₹1,847<span class="unit">Cr</span></div><div class="kpi-trend up">▲ +12.4%</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--warning)"></div><div class="kpi-header"><span class="kpi-label">Arrears Outstanding</span><div class="kpi-icon" style="background:#FEF3C7">⚠️</div></div><div class="kpi-value">₹284<span class="unit">Cr</span></div><div class="kpi-trend up">▼ -5.1%</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--info)"></div><div class="kpi-header"><span class="kpi-label">Mutations Pending</span><div class="kpi-icon" style="background:#DBEAFE">📄</div></div><div class="kpi-value">3,842</div><div class="kpi-trend up">▼ -12%</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--saffron)"></div><div class="kpi-header"><span class="kpi-label">Certificates (MTD)</span><div class="kpi-icon" style="background:var(--saffron-bg)">✅</div></div><div class="kpi-value">12,450</div><div class="kpi-trend up">▲ +8.7%</div></div>
+        </div>
+        <div class="grid-2-1">
+          <div class="card"><div class="card-title">Tehsil-wise Revenue Collection (₹ Crore)</div><div class="chart-wrap"><canvas id="chart-tehsil"></canvas></div>
+            <div class="custom-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#DBEAFE;border:1px solid #93C5FD"></div> Target</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#0D9B5C"></div> On Track (>90%)</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#E8960C"></div> Watch (80-90%)</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#D42B2B"></div> At Risk (<80%)</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">AI Revenue Predictions <span class="ai-tag">ML</span></div>
+            <div class="dss-alert critical"><div class="dss-header"><span class="dss-module">⚠ HIGH RISK — Shirur Tehsil</span></div><div class="dss-text">AI predicts only 74% target achievement. Recommend deploying additional recovery officers in Pabal and Talegaon. Est. recoverable: ₹12 Cr.</div></div>
+            <div class="dss-alert high"><div class="dss-header"><span class="dss-module">⚡ WATCH — Baramati Tehsil</span></div><div class="dss-text">82% achieved. 15 land transactions flagged for anomalous patterns. Fraud detection model confidence: 91%.</div></div>
+            <div class="dss-alert low"><div class="dss-header"><span class="dss-module">✓ ON TRACK — Haveli Tehsil</span></div><div class="dss-text">96% target achieved. Projected to exceed annual target by 4%.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ LAW & ORDER ═══════════ -->
+      <div class="module-section" id="mod-laworder">
+        <div class="module-title"><span class="icon" style="background:#DBEAFE">🛡️</span> Law & Order Monitoring</div>
+        <div class="grid-4">
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--info)"></div><div class="kpi-header"><span class="kpi-label">Total Cases (YTD)</span><div class="kpi-icon" style="background:#DBEAFE">🛡️</div></div><div class="kpi-value">4,218</div><div class="kpi-trend up">▼ -6.2%</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--success)"></div><div class="kpi-header"><span class="kpi-label">Conviction Rate</span><div class="kpi-icon" style="background:#DCFCE7">⚖️</div></div><div class="kpi-value">68.4<span class="unit">%</span></div><div class="kpi-trend up">▲ +3.1%</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--warning)"></div><div class="kpi-header"><span class="kpi-label">Avg Response Time</span><div class="kpi-icon" style="background:#FEF3C7">⏱️</div></div><div class="kpi-value">8.4<span class="unit">min</span></div><div class="kpi-trend up">▼ -1.2m</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--danger)"></div><div class="kpi-header"><span class="kpi-label">Pending Cases</span><div class="kpi-icon" style="background:#FEE2E2">📋</div></div><div class="kpi-value">847</div><div class="kpi-trend up">▼ -15%</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><div class="card-title">Crime Trend Analysis <span class="ai-tag">PREDICTIVE</span></div><div class="chart-wrap"><canvas id="chart-crime"></canvas></div></div>
+          <div class="card">
+            <div class="card-title">AI Predictive Policing — Hotspot Alerts <span class="ai-tag">ML</span></div>
+            <div id="crime-hotspots"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ DISASTER ═══════════ -->
+      <div class="module-section" id="mod-disaster">
+        <div class="module-title"><span class="icon" style="background:#FEF3C7">⛈️</span> Disaster Management & Emergency Response</div>
+        <div class="grid-4">
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--danger)"></div><div class="kpi-header"><span class="kpi-label">Active Alerts</span><div class="kpi-icon" style="background:#FEE2E2">🚨</div></div><div class="kpi-value">3</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--info)"></div><div class="kpi-header"><span class="kpi-label">Relief Camps Ready</span><div class="kpi-icon" style="background:#DBEAFE">🏕️</div></div><div class="kpi-value">12</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--warning)"></div><div class="kpi-header"><span class="kpi-label">Rescue Teams</span><div class="kpi-icon" style="background:#FEF3C7">🚒</div></div><div class="kpi-value">8</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--success)"></div><div class="kpi-header"><span class="kpi-label">Response Time</span><div class="kpi-icon" style="background:#DCFCE7">⏱️</div></div><div class="kpi-value">22<span class="unit">min</span></div><div class="kpi-trend up">▼ -4min</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><div class="card-title">Reservoir Water Levels (%) <span class="ai-tag">IoT LIVE</span></div><div class="chart-wrap"><canvas id="chart-reservoir"></canvas></div></div>
+          <div class="card">
+            <div class="card-title">Active Alerts & AI Recommendations</div>
+            <div class="dss-alert critical"><div class="dss-header"><span class="dss-module">🌊 Flood Warning — Maval, Mulshi</span><span class="dss-badge critical">Critical</span></div><div class="dss-text">IMD heavy rainfall warning. 2h ago.</div><div class="dss-action"><strong>AI Action:</strong> Pre-position 10 rescue boats. Evacuate 1,200 residents from 8 villages. Open relief camps at Talegaon & Lonavala.</div></div>
+            <div class="dss-alert high"><div class="dss-header"><span class="dss-module">🌧️ Heavy Rainfall — Haveli, Bhor</span><span class="dss-badge high">High</span></div><div class="dss-text">Yellow alert. 4h ago.</div><div class="dss-action"><strong>AI Action:</strong> Alert drainage teams. Monitor Mutha river levels at 30-min intervals.</div></div>
+            <div class="dss-alert medium"><div class="dss-header"><span class="dss-module">⛰️ Landslide Risk — Ambegaon Ghat</span><span class="dss-badge medium">Medium</span></div><div class="dss-text">Soil saturation at 82%. 6h ago.</div><div class="dss-action"><strong>AI Action:</strong> Restrict heavy vehicle movement. Deploy geological survey team.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ HEALTH ═══════════ -->
+      <div class="module-section" id="mod-health">
+        <div class="module-title"><span class="icon" style="background:#FEE2E2">🏥</span> Health Services Monitoring</div>
+        <div class="grid-4">
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--danger)"></div><div class="kpi-header"><span class="kpi-label">Bed Occupancy</span><div class="kpi-icon" style="background:#FEE2E2">🛏️</div></div><div class="kpi-value">78<span class="unit">%</span></div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--info)"></div><div class="kpi-header"><span class="kpi-label">Daily OPD</span><div class="kpi-icon" style="background:#DBEAFE">🏥</div></div><div class="kpi-value">3,240</div><div class="kpi-trend up">▲ +5.2%</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--success)"></div><div class="kpi-header"><span class="kpi-label">Vaccination Coverage</span><div class="kpi-icon" style="background:#DCFCE7">💉</div></div><div class="kpi-value">94.2<span class="unit">%</span></div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--warning)"></div><div class="kpi-header"><span class="kpi-label">108 Response</span><div class="kpi-icon" style="background:#FEF3C7">🚑</div></div><div class="kpi-value">14<span class="unit">min</span></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><div class="card-title">Disease Surveillance <span class="ai-tag">AI PREDICTION</span></div><div class="chart-wrap"><canvas id="chart-disease"></canvas></div></div>
+          <div class="card">
+            <div class="card-title">AI Health Intelligence</div>
+            <div class="dss-alert critical"><div class="dss-header"><span class="dss-module">🦟 Dengue Outbreak Alert</span><span class="dss-badge critical">Critical</span></div><div class="dss-text">52% increase in Kothrud. AI predicts 120+ cases next week.</div><div class="dss-action"><strong>AI Action:</strong> Initiate fogging in Kothrud, Karve Nagar. Set up 4 fever camps. Alert district hospital surge capacity.</div></div>
+            <div class="dss-alert high"><div class="dss-header"><span class="dss-module">💊 Medicine Stock Warning</span><span class="dss-badge high">High</span></div><div class="dss-text">Paracetamol at 4 PHCs below 7-day threshold. Depletion in 3 days.</div><div class="dss-action"><strong>AI Action:</strong> Auto-trigger procurement. Redistribute from overstocked centres at Baramati & Haveli.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ EDUCATION ═══════════ -->
+      <div class="module-section" id="mod-education">
+        <div class="module-title"><span class="icon" style="background:#F3E8FF">🎓</span> Education Monitoring</div>
+        <div class="grid-4">
+          <div class="kpi"><div class="kpi-stripe" style="background:#8B5CF6"></div><div class="kpi-header"><span class="kpi-label">Total Enrollment</span><div class="kpi-icon" style="background:#F3E8FF">🎓</div></div><div class="kpi-value">4.92<span class="unit">L</span></div><div class="kpi-trend up">▲ +3.2%</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--info)"></div><div class="kpi-header"><span class="kpi-label">Student-Teacher Ratio</span><div class="kpi-icon" style="background:#DBEAFE">👨‍🏫</div></div><div class="kpi-value">28:1</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--success)"></div><div class="kpi-header"><span class="kpi-label">Dropout Rate</span><div class="kpi-icon" style="background:#DCFCE7">📉</div></div><div class="kpi-value">3.8<span class="unit">%</span></div><div class="kpi-trend up">▼ -0.6%</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--warning)"></div><div class="kpi-header"><span class="kpi-label">Mid-Day Meal</span><div class="kpi-icon" style="background:#FEF3C7">🍱</div></div><div class="kpi-value">96.1<span class="unit">%</span></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><div class="card-title">Enrollment vs Target</div><div class="chart-wrap"><canvas id="chart-enrollment"></canvas></div></div>
+          <div class="card">
+            <div class="card-title">AI Dropout Risk Prediction <span class="ai-tag">ML</span></div>
+            <div id="dropout-risks"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ GRIEVANCE ═══════════ -->
+      <div class="module-section" id="mod-grievance">
+        <div class="module-title"><span class="icon" style="background:#FEF3C7">📝</span> Public Grievance Redressal System</div>
+        <div class="grid-4">
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--info)"></div><div class="kpi-header"><span class="kpi-label">Complaints (MTD)</span><div class="kpi-icon" style="background:#DBEAFE">📝</div></div><div class="kpi-value">2,847</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--success)"></div><div class="kpi-header"><span class="kpi-label">Resolution Rate</span><div class="kpi-icon" style="background:#DCFCE7">✅</div></div><div class="kpi-value">87.4<span class="unit">%</span></div><div class="kpi-trend up">▲ +4.1%</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--warning)"></div><div class="kpi-header"><span class="kpi-label">Avg Resolution</span><div class="kpi-icon" style="background:#FEF3C7">⏱️</div></div><div class="kpi-value">4.2<span class="unit">days</span></div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--saffron)"></div><div class="kpi-header"><span class="kpi-label">Satisfaction Score</span><div class="kpi-icon" style="background:var(--saffron-bg)">⭐</div></div><div class="kpi-value">4.1<span class="unit">/5</span></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><div class="card-title">Grievance Volume Trend</div><div class="chart-wrap"><canvas id="chart-grievance-trend"></canvas></div></div>
+          <div class="card">
+            <div class="card-title">NLP Complaint Analysis <span class="ai-tag">NLP</span></div>
+            <div id="nlp-themes"></div>
+            <div class="dss-alert medium" style="margin-top:16px"><div class="dss-header"><span class="dss-module">🤖 Sentiment Alert</span></div><div class="dss-text">Negative sentiment spike (-12%) detected in Hadapsar zone. Primarily related to water supply disruptions. AI recommends priority attention.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ WELFARE ═══════════ -->
+      <div class="module-section" id="mod-welfare">
+        <div class="module-title"><span class="icon" style="background:#F3E8FF">🤝</span> Social Welfare Schemes</div>
+        <div class="grid-4">
+          <div class="kpi"><div class="kpi-stripe" style="background:#8B5CF6"></div><div class="kpi-header"><span class="kpi-label">Total Beneficiaries</span><div class="kpi-icon" style="background:#F3E8FF">🤝</div></div><div class="kpi-value">5.56<span class="unit">L</span></div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--success)"></div><div class="kpi-header"><span class="kpi-label">DBT Success Rate</span><div class="kpi-icon" style="background:#DCFCE7">✅</div></div><div class="kpi-value">96.8<span class="unit">%</span></div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--danger)"></div><div class="kpi-header"><span class="kpi-label">Fictitious Beneficiaries</span><div class="kpi-icon" style="background:#FEE2E2">🚫</div></div><div class="kpi-value">1,247</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--info)"></div><div class="kpi-header"><span class="kpi-label">Aadhaar Seeding</span><div class="kpi-icon" style="background:#DBEAFE">🔒</div></div><div class="kpi-value">98.2<span class="unit">%</span></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><div class="card-title">Scheme Disbursement</div><div class="chart-wrap"><canvas id="chart-welfare"></canvas></div></div>
+          <div class="card">
+            <div class="card-title">AI Fraud Detection <span class="ai-tag">ANOMALY</span></div>
+            <div class="dss-alert critical"><div class="dss-header"><span class="dss-module">🚫 1,247 Fictitious Beneficiaries Detected</span><span class="dss-badge critical">Critical</span></div><div class="dss-text">AI cross-referenced Aadhaar, income & property databases. 847 duplicates + 400 ineligible. <strong>Est. savings: ₹3.2 Cr/year.</strong></div></div>
+            <div class="dss-alert high"><div class="dss-header"><span class="dss-module">📢 2,340 Eligible Non-Beneficiaries</span><span class="dss-badge high">High</span></div><div class="dss-text">AI identified eligible citizens not enrolled in Ujjwala & scholarship schemes. Targeted outreach recommended for Indapur and Bhor blocks.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ AGRICULTURE ═══════════ -->
+      <div class="module-section" id="mod-agriculture">
+        <div class="module-title"><span class="icon" style="background:#DCFCE7">🌾</span> Agriculture & Rural Development</div>
+        <div class="grid-4">
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--success)"></div><div class="kpi-header"><span class="kpi-label">Sowing Area</span><div class="kpi-icon" style="background:#DCFCE7">🌾</div></div><div class="kpi-value">4,080<span class="unit">Ha</span></div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--info)"></div><div class="kpi-header"><span class="kpi-label">Irrigation Coverage</span><div class="kpi-icon" style="background:#DBEAFE">💧</div></div><div class="kpi-value">62<span class="unit">%</span></div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--warning)"></div><div class="kpi-header"><span class="kpi-label">Crop Insurance</span><div class="kpi-icon" style="background:#FEF3C7">🛡️</div></div><div class="kpi-value">78<span class="unit">%</span></div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--saffron)"></div><div class="kpi-header"><span class="kpi-label">KCC Issued</span><div class="kpi-icon" style="background:var(--saffron-bg)">💳</div></div><div class="kpi-value">34,500</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><div class="card-title">Crop Yield Index</div><div class="chart-wrap"><canvas id="chart-crop"></canvas></div></div>
+          <div class="card">
+            <div class="card-title">AI Agricultural Advisory <span class="ai-tag">ML</span></div>
+            <div class="dss-alert low"><div class="dss-header"><span class="dss-module">🌾 Yield Prediction: Sugarcane +12%</span></div><div class="dss-text">Favourable rainfall & soil conditions. Above-average yield predicted for Baramati and Indapur.</div></div>
+            <div class="dss-alert critical"><div class="dss-header"><span class="dss-module">🐛 Pest Alert: Fall Armyworm</span><span class="dss-badge critical">Critical</span></div><div class="dss-text">67% probability in Junnar/Ambegaon maize fields. Advisory issued to 4,200 farmers via SMS.</div></div>
+            <div class="dss-alert medium"><div class="dss-header"><span class="dss-module">📈 Onion Price Forecast: ₹3,200/Q</span></div><div class="dss-text">AI recommends Shirur farmers delay harvest by 2 weeks for 14% better returns.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ ELECTION ═══════════ -->
+      <div class="module-section" id="mod-election">
+        <div class="module-title"><span class="icon" style="background:#F3E8FF">🗳️</span> Election Management</div>
+        <div class="grid-4">
+          <div class="kpi"><div class="kpi-stripe" style="background:#8B5CF6"></div><div class="kpi-header"><span class="kpi-label">Total Voters</span><div class="kpi-icon" style="background:#F3E8FF">🗳️</div></div><div class="kpi-value">78.5<span class="unit">L</span></div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--success)"></div><div class="kpi-header"><span class="kpi-label">New Registrations</span><div class="kpi-icon" style="background:#DCFCE7">📋</div></div><div class="kpi-value">1.25<span class="unit">L</span></div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--info)"></div><div class="kpi-header"><span class="kpi-label">Stations Ready</span><div class="kpi-icon" style="background:#DBEAFE">🏫</div></div><div class="kpi-value">96.1<span class="unit">%</span></div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--warning)"></div><div class="kpi-header"><span class="kpi-label">EVMs Tested</span><div class="kpi-icon" style="background:#FEF3C7">✅</div></div><div class="kpi-value">97.2<span class="unit">%</span></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><div class="card-title">Election Preparedness</div><div id="election-prep"></div></div>
+          <div class="card">
+            <div class="card-title">AI Election Intelligence <span class="ai-tag">ML</span></div>
+            <div class="dss-alert medium"><div class="dss-header"><span class="dss-module">📊 Turnout Prediction: 67.2%</span></div><div class="dss-text">Based on weather (clear), historical patterns, local events. Urban: 58%, Rural: 74%.</div></div>
+            <div class="dss-alert high"><div class="dss-header"><span class="dss-module">⚠ Expenditure Anomaly</span><span class="dss-badge high">High</span></div><div class="dss-text">3 candidates flagged for spending patterns exceeding declared limits in Baramati & Shirur.</div></div>
+            <div class="dss-alert low"><div class="dss-header"><span class="dss-module">✓ Staff Allocation Optimised</span></div><div class="dss-text">AI recommends redeployment of 140 staff from low-risk to 23 sensitive stations in Maval & Junnar.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ IoT ═══════════ -->
+      <div class="module-section" id="mod-iot">
+        <div class="module-title"><span class="icon" style="background:#FEF3C7">📡</span> IoT & Sensor Network</div>
+        <div class="grid-4">
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--success)"></div><div class="kpi-header"><span class="kpi-label">Sensors Online</span><div class="kpi-icon" style="background:#DCFCE7">📡</div></div><div class="kpi-value">847<span class="unit">/900</span></div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--warning)"></div><div class="kpi-header"><span class="kpi-label">AQI Average</span><div class="kpi-icon" style="background:#FEF3C7">🌫️</div></div><div class="kpi-value">142<span class="unit">AQI</span></div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--info)"></div><div class="kpi-header"><span class="kpi-label">Water Quality</span><div class="kpi-icon" style="background:#DBEAFE">💧</div></div><div class="kpi-value">Good</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--danger)"></div><div class="kpi-header"><span class="kpi-label">Traffic Alerts</span><div class="kpi-icon" style="background:#FEE2E2">🚗</div></div><div class="kpi-value">12</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Environmental Sensors <span class="ai-tag">LIVE</span></div>
+            <div id="env-sensors"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">SCADA Integration Status <span class="ai-tag">IoT</span></div>
+            <div id="scada-status"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ ML STATUS ═══════════ -->
+      <div class="module-section" id="mod-ml">
+        <div class="module-title"><span class="icon" style="background:var(--saffron-bg)">⚙️</span> ML Model Performance & Status</div>
+        <div class="grid-4">
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--success)"></div><div class="kpi-header"><span class="kpi-label">Active Models</span><div class="kpi-icon" style="background:#DCFCE7">🤖</div></div><div class="kpi-value">24</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--info)"></div><div class="kpi-header"><span class="kpi-label">Avg Accuracy</span><div class="kpi-icon" style="background:#DBEAFE">🎯</div></div><div class="kpi-value">91.4<span class="unit">%</span></div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--warning)"></div><div class="kpi-header"><span class="kpi-label">Retraining Due</span><div class="kpi-icon" style="background:#FEF3C7">🔄</div></div><div class="kpi-value">3</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:var(--saffron)"></div><div class="kpi-header"><span class="kpi-label">API Calls Today</span><div class="kpi-icon" style="background:var(--saffron-bg)">⚡</div></div><div class="kpi-value">142K</div></div>
+        </div>
+        <div class="card"><div class="card-title">ML Model Registry & Performance <span class="ai-tag">MLOps</span></div><div id="ml-model-table"></div></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════ UTILITIES ═══════════
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+// Date
+$('#live-date').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+// Module titles map
+const titles = {
+  overview:'Strategic Overview', dss:'AI Decision Support System', revenue:'Revenue Administration',
+  laworder:'Law & Order Monitoring', disaster:'Disaster Management', health:'Health Services',
+  education:'Education Monitoring', grievance:'Public Grievance Redressal', welfare:'Social Welfare Schemes',
+  agriculture:'Agriculture & Rural Development', election:'Election Management',
+  iot:'IoT & Sensor Network', ml:'ML Model Status'
+};
+
+// Switch modules
+function switchModule(id, btn) {
+  $$('.module-section').forEach(s => s.classList.remove('active'));
+  $$('.nav-btn').forEach(b => b.classList.remove('active'));
+  const mod = document.getElementById('mod-'+id);
+  if(mod) mod.classList.add('active');
+  if(btn) btn.classList.add('active');
+  $('#topbar-title').textContent = titles[id] || id;
+  $('#content').scrollTop = 0;
+  // Init charts for module
+  setTimeout(() => initModuleCharts(id), 50);
+}
+
+// ═══════════ CHART DEFAULTS ═══════════
+Chart.register(ChartDataLabels);
+Chart.defaults.font.family = "'Source Sans 3', sans-serif";
+Chart.defaults.font.size = 13;
+Chart.defaults.color = '#7A7A9A';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyle = 'circle';
+// Global datalabels defaults
+Chart.defaults.plugins.datalabels = {
+  color: '#4A4A6A',
+  font: { size: 11, weight: '600' },
+  anchor: 'end',
+  align: 'top',
+  offset: 2,
+  display: function(ctx) {
+    // Show labels only if dataset has few points or on bar charts
+    return ctx.chart.config.type === 'bar' || ctx.chart.config.type === 'doughnut' ? true : false;
+  },
+  formatter: function(value) {
+    if(value === null || value === undefined) return '';
+    if(value >= 100000) return (value/1000).toFixed(0)+'K';
+    return value;
+  }
+};
+
+// ═══════════ NOTIFICATION FUNCTIONS ═══════════
+function toggleNotifications(e) {
+  e.stopPropagation();
+  const panel = document.getElementById('notif-panel');
+  panel.classList.toggle('open');
+}
+function clearNotifications(e) {
+  e.stopPropagation();
+  document.getElementById('notif-list').innerHTML = '<div style="padding:40px 20px;text-align:center;color:var(--text-light);font-size:14px">✅ All notifications cleared</div>';
+  document.getElementById('notif-count').style.display = 'none';
+  document.querySelector('.notif-header h3').textContent = '🔔 Notifications (0)';
+}
+function handleNotifClick(e, module) {
+  e.stopPropagation();
+  document.getElementById('notif-panel').classList.remove('open');
+  const btn = document.querySelector(`.nav-btn[data-module="${module}"]`);
+  if(btn) switchModule(module, btn);
+}
+// Close notification panel on outside click
+document.addEventListener('click', function(e) {
+  const panel = document.getElementById('notif-panel');
+  const toggle = document.getElementById('notif-toggle');
+  if(panel && !toggle.contains(e.target)) {
+    panel.classList.remove('open');
+  }
+});
+
+const months = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+const chartInstances = {};
+
+function makeChart(id, config) {
+  if(chartInstances[id]) chartInstances[id].destroy();
+  const canvas = document.getElementById(id);
+  if(!canvas) return;
+  chartInstances[id] = new Chart(canvas, config);
+}
+
+// ═══════════ PROGRESS BAR HTML ═══════════
+function progressHTML(pct, color, label, value) {
+  return `<div class="progress-row">
+    <div class="progress-label"><span class="name">${label}</span><span class="val">${value||Math.round(pct)+'%'}</span></div>
+    <div class="progress-track"><div class="progress-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div>
+  </div>`;
+}
+
+// ═══════════ INIT OVERVIEW ═══════════
+function initOverview() {
+  // Revenue chart
+  const target = months.map((_,i)=>120+i*12);
+  const actual = months.map((_,i)=>105+i*14+rnd(0,20));
+  const prev = months.map((_,i)=>90+i*10);
+  makeChart('chart-revenue',{
+    type:'line',
+    data:{labels:months,datasets:[
+      {label:'Target',data:target,borderColor:'#2563EB',borderDash:[6,4],borderWidth:2,fill:false,tension:0.3,pointRadius:0,
+        datalabels:{display:false}},
+      {label:'Actual',data:actual,borderColor:'#0D9B5C',borderWidth:2.5,backgroundColor:'rgba(13,155,92,0.08)',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:'#0D9B5C',
+        datalabels:{display:true,color:'#0D9B5C',anchor:'end',align:'top',font:{size:10,weight:'700'}}},
+      {label:'Previous Year',data:prev,borderColor:'#94A3B8',borderDash:[3,3],borderWidth:1.5,fill:false,tension:0.3,pointRadius:0,
+        datalabels:{display:false}},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},datalabels:{}},scales:{x:{grid:{display:false}},y:{grid:{color:'#E0D8CC44'}}}}
+  });
+
+  // Grievance pie
+  makeChart('chart-grievance-pie',{
+    type:'doughnut',
+    data:{labels:['Water Supply','Roads','Electricity','Healthcare','Education','Others'],datasets:[{
+      data:[28,22,18,12,10,10],
+      backgroundColor:['#2563EB','#F59E0B','#EF4444','#10B981','#8B5CF6','#94A3B8'],
+      borderWidth:0,
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{
+      legend:{position:'bottom',labels:{padding:14,font:{size:12}}},
+      datalabels:{color:'#FFFFFF',font:{size:12,weight:'700'},anchor:'center',align:'center',formatter:function(v){return v+'%'}}
+    }}
+  });
+
+  // Department bars
+  const depts = [
+    {name:'Social Welfare',score:91,color:'var(--success)'},
+    {name:'Revenue',score:87,color:'var(--success)'},
+    {name:'Education',score:81,color:'var(--info)'},
+    {name:'Agriculture',score:79,color:'var(--info)'},
+    {name:'Health',score:74,color:'var(--warning)'},
+    {name:'Public Works',score:68,color:'var(--danger)'},
+  ];
+  $('#dept-bars').innerHTML = depts.map(d=>progressHTML(d.score,d.color,d.name)).join('');
+
+  // IoT sensors
+  const sensors = [
+    {name:'AQI — Shivajinagar',value:'142',unit:'AQI',status:'moderate',icon:'🌫️',bg:'#FEF3C7'},
+    {name:'Water Level — Khadakwasla',value:'78',unit:'%',status:'good',icon:'💧',bg:'#DCFCE7'},
+    {name:'Temperature — PMC HQ',value:'34.2',unit:'°C',status:'high',icon:'🌡️',bg:'#FEE2E2'},
+    {name:'Traffic — Swargate',value:'856',unit:'veh/hr',status:'heavy',icon:'🚗',bg:'#FEE2E2'},
+  ];
+  $('#iot-sensors').innerHTML = sensors.map(s=>`<div class="sensor-card">
+    <div class="sensor-icon" style="background:${s.bg}">${s.icon}</div>
+    <div class="sensor-info"><div class="sensor-name">${s.name}</div><div class="sensor-value">${s.value} <span class="unit">${s.unit}</span></div></div>
+    <div class="sensor-status ${s.status}"></div>
+  </div>`).join('');
+
+  // Project table
+  const projects = [
+    {name:'NH-48 Widening',status:'In Progress',progress:72,budget:'₹324/450 Cr',delay:'On Time'},
+    {name:'Pune Metro Ph-2',status:'In Progress',progress:45,budget:'₹540/1,200 Cr',delay:'15 days'},
+    {name:'Smart Water Grid',status:'In Progress',progress:58,budget:'₹220/380 Cr',delay:'8 days'},
+    {name:'District Hospital',status:'Delayed',progress:35,budget:'₹98/280 Cr',delay:'45 days'},
+    {name:'Rural Roads PKG-3',status:'On Track',progress:88,budget:'₹132/150 Cr',delay:'On Time'},
+    {name:'School Renovation',status:'Completed',progress:100,budget:'₹82/85 Cr',delay:'—'},
+  ];
+  const statusClass = s => s==='Completed'?'completed':s==='Delayed'?'delayed':s==='On Track'?'on-track':'in-progress';
+  $('#project-table').innerHTML = `<thead><tr><th>Project</th><th>Status</th><th>Progress</th><th>Budget</th><th>Delay</th></tr></thead><tbody>`+
+    projects.map(p=>`<tr><td class="name-cell">${p.name}</td><td><span class="status-tag ${statusClass(p.status)}">${p.status}</span></td>
+    <td><div class="progress-track" style="width:100px"><div class="progress-fill" style="width:${p.progress}%;background:${p.progress===100?'var(--success)':p.progress<50?'var(--danger)':'var(--warning)'}"></div></div></td>
+    <td>${p.budget}</td><td style="color:${p.delay==='On Time'||p.delay==='—'?'var(--success)':'var(--danger)'}; font-weight:600">${p.delay}</td></tr>`).join('')+'</tbody>';
+
+  // Scheme chart
+  makeChart('chart-schemes',{
+    type:'bar',
+    data:{labels:['PM-KISAN','PM Awas','Ujjwala','DBT Pension','Scholarships'],datasets:[{
+      label:'Disbursement %',data:[87,72,95,91,63],
+      backgroundColor:['#0D9B5C','#E8960C','#0D9B5C','#0D9B5C','#D42B2B'],
+      borderRadius:6,barThickness:28,
+    }]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      datalabels:{display:true,color:'#FFFFFF',anchor:'center',align:'center',font:{size:13,weight:'700'},formatter:function(v){return v+'%'}}
+    },scales:{x:{max:100,grid:{color:'#E0D8CC44'}},y:{grid:{display:false}}}}
+  });
+}
+
+// ═══════════ INIT DSS ═══════════
+function initDSS() {
+  const recs = [
+    {module:'🏥 Health',priority:'critical',alert:'Dengue cases up 52% in Kothrud zone. AI predicts 120+ cases next week.',action:'Initiate fogging in Kothrud, Karve Nagar. Set up 4 fever camps. Alert district hospital surge capacity.'},
+    {module:'⛈️ Disaster',priority:'critical',alert:'IMD heavy rainfall warning next 48hrs for Maval region.',action:'Pre-position 10 boats at 3 checkpoints. Evacuate 1,200 residents from 8 villages. Open relief camps at Talegaon & Lonavala.'},
+    {module:'💰 Revenue',priority:'high',alert:'Shirur tehsil projected to miss target by 26%.',action:'Deploy 3 additional revenue officers in Pabal, Talegaon, Shirur town. Est. recovery: ₹18 Cr.'},
+    {module:'🛡️ Law & Order',priority:'medium',alert:'68% probability of theft spike in Hadapsar East this week.',action:'Increase patrolling 8PM-2AM. Deploy 2 PCR vans. CCTV monitoring on high alert.'},
+    {module:'🎓 Education',priority:'medium',alert:'Dropout rate spike (8.2%) detected in Junnar block.',action:'Deploy counsellors to 5 at-risk schools. Review mid-day meal. Coordinate family support.'},
+  ];
+  $('#dss-recommendations').innerHTML = recs.map(r=>`<div class="dss-alert ${r.priority}">
+    <div class="dss-header"><span class="dss-module">${r.module}</span><span class="dss-badge ${r.priority}">${r.priority}</span></div>
+    <div class="dss-text">${r.alert}</div>
+    <div class="dss-action"><strong>AI Recommendation:</strong> ${r.action}</div>
+    <div class="dss-buttons"><button class="btn-accept" onclick="this.textContent='✓ Accepted';this.style.background='var(--success)'">Accept & Deploy</button><button class="btn-dismiss">Dismiss</button></div>
+  </div>`).join('');
+
+  // Benchmarks
+  const benchmarks = [{d:'Pune',s:87,r:1},{d:'Nashik',s:82,r:2},{d:'Satara',s:79,r:3},{d:'Kolhapur',s:76,r:4},{d:'Solapur',s:71,r:5}];
+  $('#bench-list').innerHTML = benchmarks.map(b=>`<div class="bench-row">
+    <div class="bench-rank ${b.r===1?'top':'other'}">${b.r}</div>
+    <div class="bench-name" style="font-weight:${b.r===1?'700':'500'}">${b.d}</div>
+    <div class="bench-bar"><div class="progress-track"><div class="progress-fill" style="width:${b.s}%;background:${b.r===1?'var(--saffron)':'var(--border)'}"></div></div></div>
+    <div class="bench-score" style="color:${b.r===1?'var(--saffron)':'var(--text-mid)'}">${b.s}</div>
+  </div>`).join('');
+
+  // ML models in DSS
+  const models = [
+    {name:'Revenue Forecast',acc:'93.2%',status:'Active',color:'var(--success)'},
+    {name:'Crime Hotspot',acc:'89.7%',status:'Active',color:'var(--success)'},
+    {name:'Disease Outbreak',acc:'91.4%',status:'Active',color:'var(--success)'},
+    {name:'Dropout Prediction',acc:'87.1%',status:'Retraining',color:'var(--warning)'},
+    {name:'Fraud Detection',acc:'94.8%',status:'Active',color:'var(--success)'},
+  ];
+  $('#ml-models-dss').innerHTML = models.map(m=>`<div class="sensor-card">
+    <div class="sensor-icon" style="background:${m.status==='Active'?'#DCFCE7':'#FEF3C7'}">🤖</div>
+    <div class="sensor-info"><div class="sensor-name">${m.name}</div><div class="sensor-value" style="font-size:18px">${m.acc} <span class="unit">accuracy</span></div></div>
+    <span class="status-tag ${m.status==='Active'?'on-track':'in-progress'}" style="font-size:11px">${m.status}</span>
+  </div>`).join('');
+}
+
+// ═══════════ INIT SPECIFIC MODULES ═══════════
+function initModuleCharts(id) {
+  if(id==='overview') initOverview();
+  if(id==='dss') initDSS();
+
+  if(id==='revenue') {
+    const tehsils = ['Pune City','Haveli','Baramati','Junnar','Maval','Mulshi','Shirur','Indapur'];
+    const targets = [320,180,120,85,95,65,78,55];
+    const actuals = [298,172,98,79,88,61,58,48];
+    const recoveryPct = actuals.map((a,i) => Math.round(a/targets[i]*100));
+    const barColors = recoveryPct.map(p => p>=90?'#0D9B5C':p>=80?'#E8960C':'#D42B2B');
+    makeChart('chart-tehsil',{type:'bar',data:{labels:tehsils,datasets:[
+      {label:'Target',data:targets,backgroundColor:'#DBEAFE',borderRadius:4,barThickness:20,datalabels:{color:'#7A7A9A',anchor:'end',align:'top'}},
+      {label:'Actual',data:actuals,backgroundColor:barColors,borderRadius:4,barThickness:20,datalabels:{color:'#1A1A2E',anchor:'end',align:'top',font:{weight:'700'}}}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:true,font:{size:11}}},scales:{x:{grid:{display:false}},y:{grid:{color:'#E0D8CC44'}}}}});
+  }
+
+  if(id==='laworder') {
+    makeChart('chart-crime',{type:'line',data:{labels:months,datasets:[
+      {label:'Theft',data:months.map(()=>rnd(35,75)),borderColor:'#EF4444',backgroundColor:'rgba(239,68,68,0.08)',fill:true,tension:0.3,borderWidth:2,pointRadius:3,pointBackgroundColor:'#EF4444',
+        datalabels:{display:true,color:'#EF4444',anchor:'end',align:'top',font:{size:10,weight:'600'}}},
+      {label:'Assault',data:months.map(()=>rnd(15,40)),borderColor:'#F59E0B',backgroundColor:'rgba(245,158,11,0.06)',fill:true,tension:0.3,borderWidth:2,pointRadius:3,pointBackgroundColor:'#F59E0B',
+        datalabels:{display:true,color:'#F59E0B',anchor:'end',align:'top',font:{size:10,weight:'600'}}},
+      {label:'Cybercrime',data:months.map(()=>rnd(8,30)),borderColor:'#8B5CF6',backgroundColor:'rgba(139,92,246,0.06)',fill:true,tension:0.3,borderWidth:2,pointRadius:3,pointBackgroundColor:'#8B5CF6',
+        datalabels:{display:true,color:'#8B5CF6',anchor:'end',align:'bottom',font:{size:10,weight:'600'}}},
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},datalabels:{}},scales:{x:{grid:{display:false}},y:{grid:{color:'#E0D8CC44'}}}}});
+    const hotspots = [
+      {area:'Hadapsar East',risk:78,type:'Theft/Burglary',time:'8PM-2AM',action:'Deploy 2 PCR vans'},
+      {area:'Kothrud Market',risk:65,type:'Chain Snatching',time:'6PM-10PM',action:'Increase foot patrol'},
+      {area:'Swargate Bus Stand',risk:58,type:'Pickpocketing',time:'Peak hours',action:'Plain-clothes detail'},
+      {area:'Hinjewadi IT Park',risk:42,type:'Vehicle Theft',time:'Late night',action:'CCTV alert mode'},
+    ];
+    $('#crime-hotspots').innerHTML = hotspots.map(h=>{
+      const col = h.risk>70?'var(--danger)':h.risk>50?'var(--warning)':'var(--info)';
+      const bg = h.risk>70?'#FEE2E2':h.risk>50?'#FEF3C7':'#DBEAFE';
+      return `<div class="sensor-card"><div class="sensor-icon" style="background:${bg};font-size:16px;font-weight:800;color:${col}">${h.risk}%</div>
+        <div class="sensor-info"><div style="font-size:15px;font-weight:600;color:var(--text-dark)">${h.area}</div><div class="sensor-name">${h.type} · ${h.time}</div></div>
+        <span class="status-tag in-progress" style="font-size:11px">${h.action}</span></div>`;
+    }).join('');
+  }
+
+  if(id==='disaster') {
+    makeChart('chart-reservoir',{type:'line',data:{labels:months,datasets:[
+      {label:'Khadakwasla',data:months.map(()=>rnd(35,95)),borderColor:'#2563EB',borderWidth:2.5,tension:0.3,fill:false,pointRadius:3,pointBackgroundColor:'#2563EB',
+        datalabels:{display:true,color:'#2563EB',anchor:'end',align:'top',font:{size:10,weight:'600'},formatter:v=>v+'%'}},
+      {label:'Panshet',data:months.map(()=>rnd(30,90)),borderColor:'#0D9B5C',borderWidth:2.5,tension:0.3,fill:false,pointRadius:3,pointBackgroundColor:'#0D9B5C',
+        datalabels:{display:true,color:'#0D9B5C',anchor:'end',align:'top',font:{size:10,weight:'600'},formatter:v=>v+'%'}},
+      {label:'Varasgaon',data:months.map(()=>rnd(40,85)),borderColor:'#F59E0B',borderWidth:2.5,tension:0.3,fill:false,pointRadius:3,pointBackgroundColor:'#F59E0B',
+        datalabels:{display:true,color:'#F59E0B',anchor:'end',align:'bottom',font:{size:10,weight:'600'},formatter:v=>v+'%'}},
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},datalabels:{}},scales:{x:{grid:{display:false}},y:{min:0,max:100,grid:{color:'#E0D8CC44'}}}}});
+  }
+
+  if(id==='health') {
+    const dengueData = months.map(()=>rnd(5,45));
+    const malariaData = months.map(()=>rnd(3,22));
+    makeChart('chart-disease',{type:'line',data:{labels:months,datasets:[
+      {label:'Dengue (Actual)',data:dengueData,borderColor:'#D42B2B',backgroundColor:'rgba(212,43,43,0.1)',fill:true,tension:0.3,borderWidth:2.5,pointRadius:3,pointBackgroundColor:'#D42B2B',
+        datalabels:{display:true,color:'#D42B2B',anchor:'end',align:'top',font:{size:10,weight:'600'}}},
+      {label:'Malaria',data:malariaData,borderColor:'#E8960C',backgroundColor:'rgba(232,150,12,0.06)',fill:true,tension:0.3,borderWidth:2,pointRadius:2,pointBackgroundColor:'#E8960C',
+        datalabels:{display:true,color:'#E8960C',anchor:'end',align:'bottom',font:{size:10,weight:'600'}}},
+      {label:'AI Predicted (Dengue)',data:[null,null,null,null,null,null,null,null,null,null,dengueData[9]+8,dengueData[9]+22],borderColor:'#D42B2B',borderDash:[6,4],fill:false,tension:0.3,borderWidth:2.5,pointRadius:6,pointStyle:'triangle',pointBackgroundColor:'#D42B2B',
+        datalabels:{display:true,color:'#D42B2B',anchor:'end',align:'top',font:{size:12,weight:'800'},
+          formatter:function(v){return v?'⚠ '+v:''}}},
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:13}}},datalabels:{}},scales:{x:{grid:{display:false}},y:{grid:{color:'#E0D8CC44'}}}}});
+  }
+
+  if(id==='education') {
+    makeChart('chart-enrollment',{type:'bar',data:{labels:['Primary','Upper Primary','Secondary','Sr. Secondary'],datasets:[
+      {label:'Target',data:[195000,150000,110000,78000],backgroundColor:'#DBEAFE',borderRadius:4,barThickness:24,
+        datalabels:{display:true,color:'#7A7A9A',anchor:'end',align:'top',font:{size:11},formatter:v=>(v/1000)+'K'}},
+      {label:'Enrolled',data:[185000,142000,98000,67000],backgroundColor:'#8B5CF6',borderRadius:4,barThickness:24,
+        datalabels:{display:true,color:'#8B5CF6',anchor:'end',align:'top',font:{size:11,weight:'700'},formatter:v=>(v/1000)+'K'}},
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},datalabels:{}},scales:{x:{grid:{display:false}},y:{grid:{color:'#E0D8CC44'},ticks:{callback:v=>(v/1000)+'K'}}}}});
+    const risks = [
+      {block:'Junnar',risk:'High',students:342,factors:'Attendance <60%, economic hardship'},
+      {block:'Ambegaon',risk:'Medium',students:187,factors:'Distance to school, seasonal migration'},
+      {block:'Bhor',risk:'Medium',students:156,factors:'Gender gap, infrastructure deficit'},
+      {block:'Velhe',risk:'Low',students:89,factors:'Improving but needs monitoring'},
+    ];
+    const riskCol = r=>r==='High'?'var(--danger)':r==='Medium'?'var(--warning)':'var(--success)';
+    const riskBg = r=>r==='High'?'#FEE2E2':r==='Medium'?'#FEF3C7':'#DCFCE7';
+    $('#dropout-risks').innerHTML = risks.map(r=>`<div class="dss-alert ${r.risk==='High'?'critical':r.risk==='Medium'?'high':'low'}">
+      <div class="dss-header"><span class="dss-module">${r.block} Block</span><span class="dss-badge ${r.risk==='High'?'critical':r.risk==='Medium'?'high':'low'}">${r.risk} Risk</span></div>
+      <div class="dss-text"><strong>${r.students}</strong> students at risk · ${r.factors}</div>
+    </div>`).join('');
+  }
+
+  if(id==='grievance') {
+    makeChart('chart-grievance-trend',{type:'bar',data:{labels:months,datasets:[
+      {label:'Received',data:months.map(()=>rnd(350,600)),backgroundColor:'#2563EB',borderRadius:4,barThickness:14,datalabels:{display:true,color:'#2563EB',anchor:'end',align:'top',font:{size:10}}},
+      {label:'Resolved',data:months.map(()=>rnd(300,550)),backgroundColor:'#0D9B5C',borderRadius:4,barThickness:14,datalabels:{display:true,color:'#0D9B5C',anchor:'end',align:'top',font:{size:10}}},
+      {label:'Pending',data:months.map(()=>rnd(30,100)),backgroundColor:'#EF4444',borderRadius:4,barThickness:14,datalabels:{display:true,color:'#EF4444',anchor:'end',align:'top',font:{size:10}}},
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},datalabels:{}},scales:{x:{grid:{display:false}},y:{grid:{color:'#E0D8CC44'}}}}});
+    // Dynamic NLP analysis — simulate real-time complaint categorization
+    const baseThemes = [
+      {t:'Water supply disruption',base:310,growth:1.08},
+      {t:'Pothole complaints',base:240,growth:1.05},
+      {t:'Power outage',base:195,growth:0.97},
+      {t:'Garbage collection',base:142,growth:1.12},
+      {t:'Drainage issues',base:118,growth:1.03},
+    ];
+    function renderNLPThemes() {
+      const now = Date.now();
+      const dayFactor = Math.sin(now/86400000*Math.PI)*0.15;
+      const themes = baseThemes.map(b => {
+        const count = Math.round(b.base * b.growth * (1 + dayFactor + (Math.random()*0.1-0.05)));
+        return {...b, c: count};
+      });
+      const total = themes.reduce((s,t)=>s+t.c, 0);
+      themes.forEach(t => t.p = Math.round(t.c/total*100));
+      const trendIcons = themes.map(t => t.growth > 1.05 ? '<span style="color:var(--danger);font-weight:700">▲</span>' : t.growth < 1 ? '<span style="color:var(--success);font-weight:700">▼</span>' : '<span style="color:var(--text-light)">—</span>');
+      $('#nlp-themes').innerHTML = '<div style="font-size:12px;color:var(--text-light);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--success);display:inline-block;animation:pulse 2s infinite"></span> Live NLP Classification · Updated just now</div>' +
+        themes.map((t,i)=>progressHTML(t.p,'var(--info)',`${trendIcons[i]} ${t.t}`,`<strong>${t.c.toLocaleString()}</strong> complaints (${t.p}%)`)).join('');
+    }
+    renderNLPThemes();
+    // Refresh NLP counts every 8 seconds for live feel
+    if(window._nlpInterval) clearInterval(window._nlpInterval);
+    window._nlpInterval = setInterval(renderNLPThemes, 8000);
+  }
+
+  if(id==='welfare') {
+    makeChart('chart-welfare',{type:'bar',data:{labels:['PM-KISAN','PM Awas','Ujjwala','DBT Pension','Scholarships'],datasets:[{
+      label:'Disbursement %',data:[87,72,95,91,63],
+      backgroundColor:['#0D9B5C','#E8960C','#0D9B5C','#0D9B5C','#D42B2B'],borderRadius:6,barThickness:28,
+    }]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      datalabels:{display:true,color:'#FFFFFF',anchor:'center',align:'center',font:{size:13,weight:'700'},formatter:v=>v+'%'}
+    },scales:{x:{max:100,grid:{color:'#E0D8CC44'}},y:{grid:{display:false}}}}});
+  }
+
+  if(id==='agriculture') {
+    makeChart('chart-crop',{type:'bar',data:{labels:['Sugarcane','Soybean','Jowar','Bajra','Onion'],datasets:[{
+      label:'Yield Index',data:[85,72,68,75,90],
+      backgroundColor:['#0D9B5C','#E8960C','#D42B2B','#E8960C','#0D9B5C'],borderRadius:6,barThickness:28,
+    }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      datalabels:{display:true,color:'#1A1A2E',anchor:'end',align:'top',font:{size:12,weight:'700'},formatter:v=>v+'/100'}
+    },scales:{x:{grid:{display:false}},y:{max:100,grid:{color:'#E0D8CC44'}}}}});
+  }
+
+  if(id==='election') {
+    const items = [
+      {name:'Polling Station Setup',done:8210,total:8542},
+      {name:'EVM Deployment',done:8314,total:8542},
+      {name:'Staff Training',done:24800,total:26000},
+      {name:'Voter Slip Distribution',done:6800000,total:7850000},
+      {name:'VVPAT Testing',done:8100,total:8542},
+    ];
+    $('#election-prep').innerHTML = items.map(e=>{
+      const pct = (e.done/e.total*100);
+      const col = pct>95?'var(--success)':pct>85?'var(--warning)':'var(--danger)';
+      return progressHTML(pct,col,e.name);
+    }).join('');
+  }
+
+  if(id==='iot') {
+    const envSensors = [
+      {name:'AQI — Shivajinagar',value:'142 AQI',status:'moderate',icon:'🌫️',bg:'#FEF3C7'},
+      {name:'AQI — Hinjewadi',value:'98 AQI',status:'good',icon:'🌤️',bg:'#DCFCE7'},
+      {name:'Water Level — Khadakwasla Dam',value:'78%',status:'good',icon:'💧',bg:'#DBEAFE'},
+      {name:'Water Quality — pH Level',value:'7.2',status:'good',icon:'🧪',bg:'#DCFCE7'},
+      {name:'Temperature — PMC HQ',value:'34.2°C',status:'high',icon:'🌡️',bg:'#FEE2E2'},
+      {name:'Rainfall — Maval',value:'124mm',status:'heavy',icon:'🌧️',bg:'#FEE2E2'},
+      {name:'Traffic — Swargate Junction',value:'856 veh/hr',status:'heavy',icon:'🚗',bg:'#FEE2E2'},
+      {name:'Waste Bin — Baner Ward',value:'78% full',status:'moderate',icon:'🗑️',bg:'#FEF3C7'},
+    ];
+    $('#env-sensors').innerHTML = envSensors.map(s=>`<div class="sensor-card">
+      <div class="sensor-icon" style="background:${s.bg}">${s.icon}</div>
+      <div class="sensor-info"><div class="sensor-name">${s.name}</div><div class="sensor-value" style="font-size:20px">${s.value}</div></div>
+      <div class="sensor-status ${s.status}"></div>
+    </div>`).join('');
+    const scada = [
+      {name:'Water Supply SCADA — Zone 1',status:'Online',pumps:'12/12 active',pressure:'Normal'},
+      {name:'Water Supply SCADA — Zone 2',status:'Online',pumps:'10/12 active',pressure:'Low Alert'},
+      {name:'Electricity SCADA — Transformer #42',status:'Warning',pumps:'Load: 92%',pressure:'Overload Risk'},
+      {name:'Electricity SCADA — Transformer #18',status:'Online',pumps:'Load: 67%',pressure:'Normal'},
+    ];
+    $('#scada-status').innerHTML = scada.map(s=>{
+      const isWarn = s.status==='Warning';
+      return `<div class="sensor-card" style="border-color:${isWarn?'var(--warning)':'var(--border-light)'}">
+        <div class="sensor-icon" style="background:${isWarn?'#FEF3C7':'#DCFCE7'}">${isWarn?'⚠️':'✅'}</div>
+        <div class="sensor-info"><div style="font-size:14px;font-weight:600;color:var(--text-dark)">${s.name}</div><div class="sensor-name">${s.pumps} · Pressure: ${s.pressure}</div></div>
+        <span class="status-tag ${isWarn?'in-progress':'on-track'}">${s.status}</span>
+      </div>`;
+    }).join('');
+  }
+
+  if(id==='ml') {
+    const models = [
+      {name:'Revenue Collection Forecast',type:'LSTM + Gradient Boosting',acc:'93.2%',status:'Active',lastTrained:'12 Feb 2026',nextRetrain:'12 May 2026',calls:'18.4K/day'},
+      {name:'Crime Hotspot Prediction',type:'Random Forest + LSTM',acc:'89.7%',status:'Active',lastTrained:'28 Jan 2026',nextRetrain:'28 Apr 2026',calls:'12.1K/day'},
+      {name:'Disease Outbreak Early Warning',type:'BERT + Time Series',acc:'91.4%',status:'Active',lastTrained:'5 Feb 2026',nextRetrain:'5 May 2026',calls:'8.7K/day'},
+      {name:'Dropout Risk Prediction',type:'XGBoost + Neural Net',acc:'87.1%',status:'Retraining',lastTrained:'15 Dec 2025',nextRetrain:'Overdue',calls:'4.2K/day'},
+      {name:'Grievance NLP Classifier',type:'IndicBERT Fine-tuned',acc:'92.6%',status:'Active',lastTrained:'20 Jan 2026',nextRetrain:'20 Apr 2026',calls:'22.5K/day'},
+      {name:'Fraud/Fictitious Beneficiary Detection',type:'Isolation Forest + Rules',acc:'94.8%',status:'Active',lastTrained:'1 Feb 2026',nextRetrain:'1 May 2026',calls:'6.3K/day'},
+      {name:'Crop Yield Prediction',type:'CNN + Weather API',acc:'88.3%',status:'Active',lastTrained:'10 Jan 2026',nextRetrain:'10 Apr 2026',calls:'3.8K/day'},
+      {name:'Sentiment Analysis',type:'mBERT + VADER',acc:'90.1%',status:'Active',lastTrained:'18 Feb 2026',nextRetrain:'18 May 2026',calls:'15.9K/day'},
+      {name:'Pothole Detection (CV)',type:'YOLOv8',acc:'86.4%',status:'Retraining',lastTrained:'1 Dec 2025',nextRetrain:'Overdue',calls:'2.1K/day'},
+      {name:'Flood Prediction',type:'LSTM + IoT Sensors',acc:'91.8%',status:'Active',lastTrained:'8 Feb 2026',nextRetrain:'8 May 2026',calls:'5.6K/day'},
+      {name:'Election Turnout Prediction',type:'Ensemble (RF+LR+XGB)',acc:'85.2%',status:'Standby',lastTrained:'1 Nov 2025',nextRetrain:'On Demand',calls:'—'},
+      {name:'Expenditure Anomaly',type:'Autoencoder + Rules',acc:'93.5%',status:'Active',lastTrained:'14 Feb 2026',nextRetrain:'14 May 2026',calls:'7.8K/day'},
+    ];
+    const sClass = s => s==='Active'?'on-track':s==='Retraining'?'in-progress':'delayed';
+    $('#ml-model-table').innerHTML = `<table class="data-table"><thead><tr><th>Model</th><th>Architecture</th><th>Accuracy</th><th>Status</th><th>Last Trained</th><th>API Calls</th></tr></thead><tbody>`+
+      models.map(m=>`<tr><td class="name-cell">${m.name}</td><td>${m.type}</td><td style="font-weight:700;color:${parseFloat(m.acc)>90?'var(--success)':'var(--warning)'}">${m.acc}</td>
+      <td><span class="status-tag ${sClass(m.status)}">${m.status}</span></td><td>${m.lastTrained}</td><td>${m.calls}</td></tr>`).join('')+'</tbody></table>';
+  }
+}
+
+// ═══════════ INIT ═══════════
+initOverview();
+</script>
+</body>
+</html>
